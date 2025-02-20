@@ -12,6 +12,7 @@ jobs:
       matrix:
         include:
           - { mongo: 8, alpine: '3.19' }
+          - { mongo: 'latest', alpine: '3.19' }
 
     steps:
       - name: Checkout repository
@@ -27,11 +28,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ github.repository }}:${{ matrix.mongo }}
+          tags: |
+            ${{ github.repository }}:${{ matrix.mongo }}
           build-args: |
             ALPINE_VERSION=${{ matrix.alpine }}
           platforms: |
