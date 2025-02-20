@@ -1,34 +1,34 @@
 # Introduction
-This project provides Docker images to periodically back up a PostgreSQL database to AWS S3, and to restore from the backup as needed.
+This project provides Docker images to periodically back up a MongoDB database to AWS S3, and to restore from the backup as needed.
 
 # Usage
 ## Backup
 ```yaml
 services:
-  postgres:
-    image: postgres:16
+  mongo:
+    image: mongo
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      MONGO_USER: user
+      MONGO_PASSWORD: password
 
   backup:
-    image: eeshugerman/postgres-backup-s3:16
+    image: mongo-backup-s3
     environment:
-      SCHEDULE: '@weekly'     # optional
-      BACKUP_KEEP_DAYS: 7     # optional
-      PASSPHRASE: passphrase  # optional
-      S3_REGION: region
+      SCHEDULE: '@weekly'                      # optional
+      BACKUP_KEEP_DAYS: 7                      # optional
+      PASSPHRASE: passphrase                   # optional
+      S3_REGION: us-west-1
       S3_ACCESS_KEY_ID: key
       S3_SECRET_ACCESS_KEY: secret
       S3_BUCKET: my-bucket
-      S3_PREFIX: backup
-      POSTGRES_HOST: postgres
-      POSTGRES_DATABASE: dbname
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      S3_PATH: backup
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_DATABASE: mydb
+      MONGO_USER: user
+      MONGO_PASSWORD: password
 ```
 
-- Images are tagged by the major PostgreSQL version supported: `12`, `13`, `14`, `15` or `16`.
 - The `SCHEDULE` variable determines backup frequency. See go-cron schedules documentation [here](http://godoc.org/github.com/robfig/cron#hdr-Predefined_schedules). Omit to run the backup immediately and then exit.
 - If `PASSPHRASE` is provided, the backup will be encrypted using GPG.
 - Run `docker exec <container name> sh backup.sh` to trigger a backup ad-hoc.
@@ -54,9 +54,9 @@ docker exec <container name> sh restore.sh <timestamp>
 
 # Development
 ## Build the image locally
-`ALPINE_VERSION` determines Postgres version compatibility. See [`build-and-push-images.yml`](.github/workflows/build-and-push-images.yml) for the latest mapping.
+Customize the Dockerfile for MongoDB compatibility. Build the image using:
 ```sh
-DOCKER_BUILDKIT=1 docker build --build-arg ALPINE_VERSION=3.14 .
+DOCKER_BUILDKIT=1 docker build -t your-custom-mongo-backup-image .
 ```
 ## Run a simple test environment with Docker Compose
 ```sh
@@ -66,22 +66,21 @@ docker compose up -d
 ```
 
 # Acknowledgements
-This project is a fork and re-structuring of @schickling's [postgres-backup-s3](https://github.com/schickling/dockerfiles/tree/master/postgres-backup-s3) and [postgres-restore-s3](https://github.com/schickling/dockerfiles/tree/master/postgres-restore-s3).
+This MongoDB backup project adapts techniques from existing PostgreSQL backup solutions, restructured for simplicity and versatility in MongoDB environments.
 
 ## Fork goals
-These changes would have been difficult or impossible merge into @schickling's repo or similarly-structured forks.
+These changes would have incorporated multiple features that are tailored specifically for MongoDB:
   - dedicated repository
   - automated builds
-  - support multiple PostgreSQL versions
+  - support MongoDB specific requirements
   - backup and restore with one image
 
 ## Other changes and features
-  - some environment variables renamed or removed
-  - uses `pg_dump`'s `custom` format (see [docs](https://www.postgresql.org/docs/10/app-pgdump.html))
-  - drop and re-create all database objects on restore
-  - backup blobs and all schemas by default
-  - no Python 2 dependencies
+  - uses `mongodump` and `mongorestore` for backup and restoration
+  - supports custom backup options via `MONGODUMP_EXTRA_OPTS`
+  - supports custom restore options via `MONGORESTORE_EXTRA_OPTS`
   - filter backups on S3 by database name
   - support encrypted (password-protected) backups
   - support for restoring from a specific backup by timestamp
   - support for auto-removal of old backups
+```
