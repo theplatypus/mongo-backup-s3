@@ -19,16 +19,6 @@ if [ -z "$MONGO_HOST" ]; then
   fi
 fi
 
-if [ -z "$MONGO_USER" ]; then
-  echo "You need to set the MONGO_USER environment variable."
-  exit 1
-fi
-
-if [ -z "$MONGO_PASSWORD" ]; then
-  echo "You need to set the MONGO_PASSWORD environment variable."
-  exit 1
-fi
-
 if [ -z "$S3_ENDPOINT" ]; then
   aws_args=""
 else

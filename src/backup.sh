@@ -9,10 +9,10 @@ echo "Creating backup of $MONGO_DATABASE database..."
 mongodump --archive=db.dump \
           --host $MONGO_HOST \
           --port $MONGO_PORT \
-          --username $MONGO_USER \
-          --password $MONGO_PASSWORD \
+          ${MONGO_USER:+--username $MONGO_USER} \
+          ${MONGO_PASSWORD:+--password $MONGO_PASSWORD} \
+          ${MONGO_PASSWORD:+--authenticationDatabase "admin"} \
           --db $MONGO_DATABASE \
-          --authenticationDatabase "admin" \
           $MONGODUMP_EXTRA_OPTS
 
 timestamp=$(date +"%Y-%m-%dT%H:%M:%S")
