@@ -52,6 +52,9 @@ const fillIris = (db, collectionName = 'iris', n = 10_000) => {
     });
 };
 
+fillCollectionWithRandomObjects(db, 'foo', 1_000);
+fillIris(db);
+
 // Usage example
 // const n = 10; // Number of random objects
 // const db = yourMongoDbInstance;

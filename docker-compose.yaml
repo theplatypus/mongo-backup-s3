@@ -25,7 +25,7 @@ services:
       # file will be stored in $S3_ENDPOINT/$S3_BUCKET/$S3_PREFIX/$(date).dump
       S3_ENDPOINT:            # for S3 compatible providers
       S3_BUCKET:
-      S3_PREFIX: debug
+      S3_PREFIX:              # could/be/a/path
       MONGO_HOST: mongo
       MONGO_DATABASE: test
       MONGO_PORT: 27017
