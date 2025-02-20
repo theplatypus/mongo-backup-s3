@@ -5,8 +5,7 @@ set -o pipefail
 
 apk update
 
-# install pg_dump
-apk add postgresql-client
+apk add mongodb-tools
 
 # install gpg
 apk add gnupg
